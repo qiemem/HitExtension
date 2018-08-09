@@ -1,0 +1,8 @@
+/bin/sbt-launch-*.jar
+/project/project
+/project/target
+/target
+/sample-scala.jar
+/sample-scala.jar.pack.gz
+/sample-scala.zip
+.bundledFiles

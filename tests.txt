@@ -1,0 +1,14 @@
+hitting-multiple-turtles
+  extensions [ hit ]
+  O> crt 3
+  [ hit:ing-turtles? other turtles ] of turtle 0 => true
+  O> ask turtle 1 [ fd 2 ]
+  [ hit:ing-turtles? other turtles ] of turtle 0 => true
+  O> ask turtle 2 [ fd 2 ]
+  [ hit:ing-turtles? other turtles ] of turtle 0 => false
+  [ hit:ing-turtles? turtles ] of turtle 0 => false
+
+hitting-single-turtle
+  extensions [ hit ]
+  O
+
