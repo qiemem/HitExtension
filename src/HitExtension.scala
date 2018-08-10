@@ -3,6 +3,8 @@ import org.nlogo.api.{Argument, Context, ExtensionException, Turtle}
 import org.nlogo.core
 import org.nlogo.core.{AgentKind, Syntax}
 import api.ScalaConversions._
+import org.nlogo.agent.World
+
 import scala.collection.JavaConverters._
 
 class HitExtension extends api.DefaultClassManager {
@@ -19,18 +21,20 @@ object Hitting extends api.Reporter {
     ret = Syntax.BooleanType
   )
 
-  def checkCollision(thisTurtle: Turtle, thatTurtle: Turtle): Boolean = {
-    val distance = StrictMath.pow(thisTurtle.xcor - thatTurtle.xcor, 2) +
-      StrictMath.pow(thisTurtle.ycor - thatTurtle.ycor, 2)
-    val combinedSize = StrictMath.pow(thisTurtle.size / 2.0 + thatTurtle.size / 2.0, 2)
-    (thisTurtle != thatTurtle) && (distance < combinedSize)
+  def checkCollision(world: World, thisTurtle: Turtle, thatTurtle: Turtle): Boolean = {
+    if (thisTurtle == thatTurtle)
+      false
+    else {
+      val combinedSize = thisTurtle.size / 2.0 + thatTurtle.size / 2.0
+      world.protractor.distance(thisTurtle, thatTurtle, true) < combinedSize
+    }
   }
 
 
   override def report(args: Array[Argument], context: Context): AnyRef = {
     val thisTurtle = context.getAgent.asInstanceOf[Turtle]
     val thatTurtle = args(0).getTurtle
-    checkCollision(thisTurtle, thatTurtle).toLogoObject
+    checkCollision(context.world.asInstanceOf[World], thisTurtle, thatTurtle).toLogoObject
   }
 }
 
@@ -47,6 +51,8 @@ object HittingAgents extends api.Reporter {
     if (turtles.kind != AgentKind.Turtle)
       throw new ExtensionException("Expected a turtle set")
 
-    turtles.agents.asScala.exists(t => Hitting.checkCollision(thisTurtle, t.asInstanceOf[Turtle])).toLogoObject
+    turtles.agents.asScala.exists { t =>
+      Hitting.checkCollision(context.world.asInstanceOf[World], thisTurtle, t.asInstanceOf[Turtle])
+    }.toLogoObject
   }
 }
